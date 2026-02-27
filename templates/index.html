@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Digital Wallet</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            margin: 20px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 24px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .view-section {
+            padding: 24px;
+            display: none; /* Hidden by default, toggled via JS */
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        /* Forms & Inputs */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        button.btn-main {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 8px;
+        }
+
+        button.btn-main:hover {
+            background: var(--primary-hover);
+        }
+
+        button.btn-secondary {
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 12px;
+        }
+
+        button.btn-secondary:hover {
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        /* Dashboard Specifics */
+        .balance-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .balance-card p {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        #balance {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .card-grid {
+            background: #fafafa;
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .card-grid h3 {
+            margin: 0 0 16px 0;
+            font-size: 16px;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* History */
+        #history {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 12px;
+            padding-right: 4px;
+        }
+
+        .history-item {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-info p {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .history-info small {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .history-amount {
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        /* Status Toast */
+        #status-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 50px;
+            background: #333;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: opacity 0.3s, transform 0.3s;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        #status-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
+        }
+
+        #status-toast.error {
+            background: var(--error);
+        }
+
+        #status-toast.success {
+            background: var(--success);
+        }
+
+        /* Toggle Auth Links */
+        .auth-toggle {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .auth-toggle a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <h1>Digital Wallet</h1>
+        <button id="logoutBtn" class="logout-btn" style="display: none;" onclick="logout()">Logout</button>
+    </div>
+
+    <div id="authView" class="view-section active">
+        
+        <div id="loginForm">
+            <div class="form-group">
+                <label>Username</label>
+                <input id="username" placeholder="Enter your username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input id="password" type="password" placeholder="Enter your password">
+            </div>
+            <button class="btn-main" onclick="login()">Login</button>
+            <div class="auth-toggle">
+                Don't have an account? <a onclick="toggleAuth('register')">Register</a>
+            </div>
+        </div>
+
+        <div id="registerForm" style="display: none;">
+            <div class="form-group">
+                <label>Choose Username</label>
+                <input id="regUser" placeholder="New username">
+            </div>
+            <div class="form-group">
+                <label>Choose Password</label>
+                <input id="regPass" type="password" placeholder="New password">
+            </div>
+            <button class="btn-main" onclick="register()">Create Account</button>
+            <div class="auth-toggle">
+                Already have an account? <a onclick="toggleAuth('login')">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboardView" class="view-section">
+        
+        <div class="balance-card">
+            <p>Available Balance</p>
+            <div id="balance">₹ 0.00</div>
+            <button class="btn-secondary" style="color: white; border-color: rgba(255,255,255,0.4); margin-top: 16px;" onclick="getBalance()">Refresh Balance</button>
+        </div>
+
+        <div class="card-grid">
+            <h3>Add Funds</h3>
+            <div class="row">
+                <input id="depositAmount" type="number" placeholder="Amount (₹)">
+                <button class="btn-main" style="margin-top: 0; width: auto; padding: 0 20px;" onclick="deposit()">Deposit</button>
+            </div>
+        </div>
+
+        <div class="card-grid">
+            <h3>Send Money</h3>
+            <div class="form-group">
+                <input id="receiver" placeholder="Receiver Username">
+            </div>
+            <div class="row">
+                <input id="transferAmount" type="number" placeholder="Amount (₹)">
+                <button class="btn-main" style="margin-top: 0; width: auto; padding: 0 20px;" onclick="transfer()">Send</button>
+            </div>
+        </div>
+
+        <div class="card-grid">
+            <h3>Recent Transactions</h3>
+            <button class="btn-secondary" style="margin-top:0; width:100%;" onclick="loadHistory()">Load History</button>
+            <div id="history">
+                </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="status-toast"></div>
+
+<script>
+    let token = localStorage.getItem("token") || null;
+    const BASE = window.location.origin;
+
+    // --- UI HELPER FUNCTIONS ---
+
+    // Automatically show dashboard if a token already exists in localStorage
+    window.onload = () => {
+        if (token) {
+            showDashboard();
+            getBalance();
+        }
+    };
+
+    function toggleAuth(type) {
+        if(type === 'register') {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        } else {
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        }
+    }
+
+    function showDashboard() {
+        document.getElementById('authView').classList.remove('active');
+        document.getElementById('dashboardView').classList.add('active');
+        document.getElementById('logoutBtn').style.display = 'block';
+    }
+
+    function showAuth() {
+        document.getElementById('dashboardView').classList.remove('active');
+        document.getElementById('authView').classList.add('active');
+        document.getElementById('logoutBtn').style.display = 'none';
+        
+        // Clear inputs on logout
+        document.getElementById("username").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("balance").innerText = "₹ 0.00";
+        document.getElementById("history").innerHTML = "";
+    }
+
+    // A modern replacement for the simple <p id="status">
+    function setStatus(message, isError = false) {
+        const toast = document.getElementById("status-toast");
+        toast.innerText = message;
+        toast.className = isError ? 'error show' : 'success show';
+        
+        // Auto-hide toast after 3 seconds
+        setTimeout(() => {
+            toast.className = toast.className.replace('show', '').trim();
+        }, 3000);
+    }
+
+    function logout() {
+        token = null;
+        localStorage.removeItem("token");
+        showAuth();
+        setStatus("Logged out successfully");
+    }
+
+    // --- API FUNCTIONS ---
+
+    /* LOGIN */
+    async function login(){
+        try {
+            const res = await fetch(BASE+"/login",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({
+                    username:document.getElementById("username").value,
+                    password:document.getElementById("password").value
+                })
+            });
+
+            const data = await res.json();
+
+            if(data.token){
+                token = data.token;
+                localStorage.setItem("token", token);
+                setStatus("Login successful");
+                showDashboard();
+                getBalance();
+            } else {
+                setStatus(data.error || "Login failed", true);
+            }
+        } catch (e) {
+            setStatus("Network error", true);
+        }
+    }
+
+    /* REGISTER */
+    async function register(){
+        try {
+            const username = document.getElementById("regUser").value;
+            const password = document.getElementById("regPass").value;
+            
+            // Step 1: create account
+            const res = await fetch(BASE+"/register",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({username,password})
+            });
+
+            const data = await res.json();
+
+            if(!data.message){ // Assumes fail returns data.error
+                setStatus(data.error || "Registration failed", true);
+                return;
+            }
+
+            // Step 2: auto login
+            const loginRes = await fetch(BASE+"/login",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({username,password})
+            });
+
+            const loginData = await loginRes.json();
+
+            if(loginData.token){
+                token = loginData.token;
+                localStorage.setItem("token", token);
+                setStatus("Account created & logged in!");
+                showDashboard();
+                getBalance();
+            } else {
+                setStatus("Registered but login failed", true);
+            }
+        } catch (e) {
+            setStatus("Network error during registration", true);
+        }
+    }
+
+    /* BALANCE */
+    async function getBalance(){
+        if (!token) return;
+        try {
+            const res = await fetch(BASE+"/balance",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({token})
+            });
+            const data = await res.json();
+            if(data.balance !== undefined) {
+                document.getElementById("balance").innerText = "₹ " + parseFloat(data.balance).toFixed(2);
+            } else {
+                setStatus(data.error || "Failed to fetch balance", true);
+            }
+        } catch (e) {
+            setStatus("Network error", true);
+        }
+    }
+
+    /* DEPOSIT */
+    async function deposit(){
+        const amount = parseFloat(document.getElementById("depositAmount").value);
+        if (isNaN(amount) || amount <= 0) {
+            setStatus("Please enter a valid amount", true);
+            return;
+        }
+
+        try {
+            const res = await fetch(BASE+"/deposit",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({token, amount})
+            });
+
+            const data = await res.json();
+            if(data.message) {
+                setStatus(data.message);
+                document.getElementById("depositAmount").value = "";
+                getBalance(); // Auto-refresh balance
+            } else {
+                setStatus(data.error || "Deposit failed", true);
+            }
+        } catch (e) {
+            setStatus("Network error", true);
+        }
+    }
+
+    /* TRANSFER */
+    async function transfer(){
+        const receiver = document.getElementById("receiver").value;
+        const amount = parseFloat(document.getElementById("transferAmount").value);
+
+        if (!receiver) {
+            setStatus("Please enter a receiver username", true);
+            return;
+        }
+        if (isNaN(amount) || amount <= 0) {
+            setStatus("Please enter a valid amount", true);
+            return;
+        }
+
+        try {
+            const res = await fetch(BASE+"/transfer",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({token, receiver, amount})
+            });
+
+            const data = await res.json();
+            if(data.message) {
+                setStatus(data.message);
+                document.getElementById("receiver").value = "";
+                document.getElementById("transferAmount").value = "";
+                getBalance(); // Auto-refresh balance
+                loadHistory(); // Auto-refresh history
+            } else {
+                setStatus(data.error || "Transfer failed", true);
+            }
+        } catch (e) {
+            setStatus("Network error", true);
+        }
+    }
+
+    /* HISTORY */
+    async function loadHistory(){
+        if (!token) return;
+        try {
+            const res = await fetch(BASE+"/transactions",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({token})
+            });
+
+            const data = await res.json();
+            const historyContainer = document.getElementById("history");
+            
+            if (data.error) {
+                setStatus(data.error, true);
+                return;
+            }
+
+            if (!data.length) {
+                historyContainer.innerHTML = "<p style='text-align:center; color:var(--text-muted); font-size:14px;'>No transactions found.</p>";
+                return;
+            }
+
+            let html = "";
+            // Assuming the newest transactions are preferred at the top, you might want data.reverse() here if the API sends oldest first.
+            data.forEach(t => {
+                html += `
+                <div class="history-item">
+                    <div class="history-info">
+                        <p>${t.from} &rarr; ${t.to}</p>
+                        <small>${t.time || new Date().toLocaleDateString()}</small>
+                    </div>
+                    <div class="history-amount">
+                        ₹${parseFloat(t.amount).toFixed(2)}
+                    </div>
+                </div>`;
+            });
+
+            historyContainer.innerHTML = html;
+        } catch (e) {
+            setStatus("Network error fetching history", true);
+        }
+    }
+</script>
+
+</body>
+</html>
