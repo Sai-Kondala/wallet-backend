@@ -76,7 +76,7 @@ This project simulates the core backend behavior of digital wallet/payment syste
 ## Running the Project
 
 ```bash
-pip install flask
+pip install -r requirements.txt
 python3 app.py
 ```
 
